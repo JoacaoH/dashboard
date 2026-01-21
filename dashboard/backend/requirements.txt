@@ -2,3 +2,7 @@ fastapi
 uvicorn
 google-cloud-bigquery
 google-auth
+pandas
+pyarrow
+db-dtypes
+google-cloud-bigquery-storage
