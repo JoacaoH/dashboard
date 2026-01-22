@@ -52,7 +52,7 @@ export function EngagementFunnel({ userEmail }: { userEmail: string }) {
       </p>
       <div style={{ height: `${chartHeight}px`, minHeight: '400px' }}>
 
-      ;;6<ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer width="100%" height="100%">
         <BarChart data={dataFunnel} layout="vertical" margin={{ left: 50, right: 30 }}>
           <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#3a3d4d"/>
           <XAxis type="number" domain={[0, 100]} hide />

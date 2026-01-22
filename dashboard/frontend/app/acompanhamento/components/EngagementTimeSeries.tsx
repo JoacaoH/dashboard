@@ -1,4 +1,7 @@
 import React from 'react'
+import { useEffect, useState } from 'react'
+import axios from 'axios'
+
 import {
   LineChart,
   Line,
@@ -9,41 +12,33 @@ import {
   ResponsiveContainer,
   Legend,
 } from 'recharts'
-export function EngagementTimeSeries() {
-  const data = [
-    {
-      week: 'Sem 1',
-      ieg: 82,
-    },
-    {
-      week: 'Sem 2',
-      ieg: 78,
-    },
-    {
-      week: 'Sem 3',
-      ieg: 75,
-    },
-    {
-      week: 'Sem 4',
-      ieg: 71,
-    },
-    {
-      week: 'Sem 5',
-      ieg: 68,
-    },
-    {
-      week: 'Sem 6',
-      ieg: 72,
-    },
-    {
-      week: 'Sem 7',
-      ieg: 75,
-    },
-    {
-      week: 'Sem 8',
-      ieg: 77,
-    },
-  ]
+export function EngagementTimeSeries({ userEmail }: { userEmail: string }) {
+  const [timeSeries, setTimeSeries] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (!userEmail) return;
+    async function loadTimeSeries() {
+      try {
+        const res = await axios.get('http://localhost:8000/api/stats/engagement_time_series', {
+          headers: { Authorization: `Bearer ${userEmail}` }
+        })
+        setTimeSeries(res.data)
+      } catch (error) {
+        console.error("Erro ao buscar dados:", error)
+      } finally {
+        setLoading(false)
+      }
+    }
+    loadTimeSeries()
+  }, [userEmail])
+
+  if (loading) return (
+    <div className="bg-white rounded-[2rem] p-8 h-[320px] flex items-center justify-center border border-gray-100">
+      <div className="w-8 h-8 border-4 border-[#95be43] border-t-transparent rounded-full animate-spin"></div>
+    </div>
+  )
+
   return (
     <div className="bg-white rounded-lg shadow p-6">
       <h3 className="text-lg font-semibold text-gray-900 mb-4">
@@ -51,20 +46,20 @@ export function EngagementTimeSeries() {
       </h3>
       <p className="text-sm text-gray-600 mb-4">IEG médio por semana</p>
       <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={data}>
+        <LineChart data={timeSeries}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="week" />
+          <XAxis dataKey="data_snapshot" />
           <YAxis domain={[0, 100]} />
           <Tooltip />
           <Legend />
           <Line
             type="monotone"
-            dataKey="ieg"
-            stroke="#3b82f6"
+            dataKey="IEG_medio"
+            stroke="#3a3d4d"
             strokeWidth={3}
             name="IEG Médio"
             dot={{
-              fill: '#3b82f6',
+              fill: '#95be43',
               r: 5,
             }}
           />

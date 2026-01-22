@@ -1,7 +1,7 @@
 'use client'
 
 import { signIn, useSession } from "next-auth/react"
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, act } from 'react'
 import axios from 'axios'
 import { LayoutDashboard, BarChart3, Users, MessageSquare, User as UserIcon } from 'lucide-react'
 import LogoutButton from "@/components/LogoutButton"
@@ -12,13 +12,17 @@ import { RiskStatus } from './components/RiskStatus'
 import { EngagementFunnel } from './components/EngagementFunnel'
 import { EngagementTimeSeries } from './components/EngagementTimeSeries'
 import { Navbar, NavButton } from "./components/Navbar"
-
+import { ActivitiesDelivered } from "./components/ActivitiesDelivered"
+import { ActivitiesNotes } from "./components/ActivitiesNotes"
+import { Frequency } from "./components/Frequency"
+import { Ludicos } from "./components/Ludicos"
 
 export default function AcompanhamentoPage() {
   const { data: session } = useSession()
-  const [activeView, setActiveView] = useState('overview')
+  const [activeView, setActiveView] = useState<'overview' | 'components' | 'groups' | 'sentiment' | 'student'>('overview');
   const [dados, setDados] = useState([])
   const [loading, setLoading] = useState(true)
+  const [components, setComponents] = useState([])
 
   // Busca os dados reais do seu BigQuery via FastAPI
   useEffect(() => {
@@ -39,16 +43,29 @@ export default function AcompanhamentoPage() {
     fetchData()
   }, [session])
 
+  useEffect(() => {
+    const fetchComponents = async () => {
+      if (session?.user?.email) {
+        try {
+          const res = await axios.get('http://localhost:8000/api/components', {
+            headers: { Authorization: `Bearer ${session.user.email}` }
+            })
+          setComponents(res.data)
+        } catch (error) {
+          console.error("Erro ao buscar componentes:", error)
+        } finally {
+          setLoading(false)
+        }
+        fetchComponents()
+        }
+      }
+    }, [session])
+
   return (
     <div className="min-h-screen bg-[#f8fafc]">
       {/* HEADER E NAVEGAÇÃO INTEGRADA */}
       <Navbar
-        logo={
-          <>
-            <div className="w-10 h-10 bg-[#95be43] rounded-lg flex items-center justify-center font-black text-white">C</div>
-            <h1 className="text-xl font-bold tracking-tight">Acompanhamento</h1>
-          </>
-        }
+      
         actions={<LogoutButton />}
         >
         <NavButton 
@@ -106,15 +123,49 @@ export default function AcompanhamentoPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                <EngagementFunnel userEmail={session?.user?.email ?? ''} />
-               <EngagementTimeSeries />
+               <EngagementTimeSeries userEmail={session?.user?.email ?? ''} />
             </div>
           </div>
         )}
 
-        {activeView !== 'overview' && (
-          <div className="flex flex-col items-center justify-center py-20 text-gray-400">
-             <BarChart3 size={64} className="mb-4 opacity-20" />
-             <p className="text-xl font-medium">Desenvolvendo Visão: {activeView}</p>
+        {activeView === 'components' && (
+          <div className="animate-in fade-in duration-500">
+            <header className="mb-8">
+              <h2 className="text-3xl font-black text-[#3a3d4d]">Análise de Componentes</h2>
+              <p className="text-gray-500">Entenda o porquê do engajamento</p>
+              <ActivitiesDelivered userEmail={session?.user?.email ?? ''} />
+              <ActivitiesNotes userEmail={session?.user?.email ?? ''} />
+              <Frequency userEmail={session?.user?.email ?? ''} />
+              <Ludicos userEmail={session?.user?.email ?? ''} />
+
+            </header>
+          </div>
+        )}
+
+        {activeView  === 'groups' && (
+          <div className="animate-in fade-in duration-500">
+            <header className="mb-8">
+              <h2 className="text-3xl font-black text-[#3a3d4d]">Análise de Grupos</h2>
+              <p className="text-gray-500">Comparativo entre escolas, turmas e cargos</p>
+            </header>
+          </div>
+        )}
+
+        {activeView  === 'sentiment' && (
+          <div className="animate-in fade-in duration-500">
+            <header className="mb-8">
+              <h2 className="text-3xl font-black text-[#3a3d4d]">Análise de Sentimento x Ação</h2>
+              <p className="text-gray-500">O que eles falam vs. o que eles fazem</p>
+            </header>
+          </div>
+        )}
+
+        {activeView  === 'student' && (
+          <div className="animate-in fade-in duration-500">
+            <header className="mb-8">
+              <h2 className="text-3xl font-black text-[#3a3d4d]">Visão 360° do Cursista</h2>
+              <p className="text-gray-500">Ficha individual completa</p>
+            </header>
           </div>
         )}
       </main>
