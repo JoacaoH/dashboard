@@ -11,7 +11,7 @@ import { IEGGauge } from './components/IEGGauge'
 import { RiskStatus } from './components/RiskStatus'
 import { EngagementFunnel } from './components/EngagementFunnel'
 import { EngagementTimeSeries } from './components/EngagementTimeSeries'
-
+import { Navbar, NavButton } from "./components/Navbar"
 
 
 export default function AcompanhamentoPage() {
@@ -42,24 +42,53 @@ export default function AcompanhamentoPage() {
   return (
     <div className="min-h-screen bg-[#f8fafc]">
       {/* HEADER E NAVEGAÇÃO INTEGRADA */}
-      <nav className="bg-[#3a3d4d] text-white shadow-lg sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-[#95be43] rounded-lg flex items-center justify-center font-black text-white">C</div>
-              <h1 className="text-xl font-bold tracking-tight">Acompanhamento</h1>
-            </div>
-            
-            <div className="hidden md:flex space-x-2">
-              <NavButton id="overview" label="Visão Geral" icon={LayoutDashboard} active={activeView} onClick={setActiveView} />
-              <NavButton id="components" label="Componentes" icon={BarChart3} active={activeView} onClick={setActiveView} />
-              <NavButton id="student" label="Visão 360°" icon={UserIcon} active={activeView} onClick={setActiveView} />
-            </div>
-
-            <LogoutButton />
-          </div>
-        </div>
-      </nav>
+      <Navbar
+        logo={
+          <>
+            <div className="w-10 h-10 bg-[#95be43] rounded-lg flex items-center justify-center font-black text-white">C</div>
+            <h1 className="text-xl font-bold tracking-tight">Acompanhamento</h1>
+          </>
+        }
+        actions={<LogoutButton />}
+        >
+        <NavButton 
+          id="overview" 
+          label="Visão Geral" 
+          icon={LayoutDashboard} 
+          active={activeView} 
+          onClick={setActiveView} 
+        />
+        <NavButton 
+          id="components" 
+          label="Componentes" 
+          icon={BarChart3} 
+          active={activeView} 
+          onClick={setActiveView} 
+        />
+        <NavButton 
+          id="groups" 
+          label="Análises por Grupo" 
+          icon={Users} 
+          active={activeView} 
+          onClick={setActiveView} 
+        />
+        <NavButton 
+          id="sentiment" 
+          label="Sentimento X Ação" 
+          icon={MessageSquare} 
+          active={activeView} 
+          onClick={setActiveView} 
+        />
+        <NavButton 
+          id="student" 
+          label="Visão 360°" 
+          icon={UserIcon} 
+          active={activeView} 
+          onClick={setActiveView} 
+        />
+      </Navbar>  
+        
+      
 
       {/* ÁREA DO CONTEÚDO */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -72,11 +101,11 @@ export default function AcompanhamentoPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
                <IEGGauge userEmail={session?.user?.email ?? ''} />
-               <RiskStatus dados={dados} />
-            </div>
+               <RiskStatus userEmail={session?.user?.email ?? ''} />            
+              </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-               <EngagementFunnel />
+               <EngagementFunnel userEmail={session?.user?.email ?? ''} />
                <EngagementTimeSeries />
             </div>
           </div>
@@ -93,20 +122,3 @@ export default function AcompanhamentoPage() {
   )
 }
 
-// Sub-componente de Botão de Navegação para manter o código limpo
-function NavButton({ id, label, icon: Icon, active, onClick }: any) {
-  const isActive = active === id
-  return (
-    <button
-      onClick={() => onClick(id)}
-      className={`flex items-center px-4 py-2 rounded-xl text-sm font-bold transition-all ${
-        isActive 
-        ? 'bg-[#95be43] text-white shadow-lg shadow-[#95be43]/20' 
-        : 'text-white/60 hover:bg-white/5 hover:text-white'
-      }`}
-    >
-      <Icon className="w-4 h-4 mr-2" />
-      {label}
-    </button>
-  )
-}
